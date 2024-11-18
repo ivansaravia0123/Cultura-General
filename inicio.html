@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cultura General - Quiz Interactivo</title>
+  <style>
+    /* Estilos generales */
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #3498db, #8e44ad);
+      color: #fff;
+      overflow: hidden;
+    }
+    
+    .quiz-container {
+      background: #2c3e50;
+      border-radius: 15px;
+      padding: 30px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+    }
+
+    .category-btn, #next-btn, #retry-btn {
+      background-color: #2980b9;
+      color: white;
+      padding: 15px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      width: 100%;
+      opacity: 0.9;
+    }
+
+    .category-btn:hover, #next-btn:hover, #retry-btn:hover {
+      background-color: #16a085;
+      transform: scale(1.05);
+    }
+
+    .category-btn:focus, #next-btn:focus, #retry-btn:focus {
+      outline: none;
+    }
+
+    .category-btn {
+      background-color: #2ecc71;
+    }
+
+    .question {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      animation: slideIn 0.6s ease-out;
+    }
+
+    .answers {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 20px;
+    }
+
+    .answers li {
+      background-color: #2980b9;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .answers li:hover {
+      background-color: #1abc9c;
+      transform: scale(1.05);
+    }
+
+    .answers li.correct {
+      background-color: #27ae60;
+    }
+
+    .answers li.incorrect {
+      background-color: #e74c3c;
+    }
+
+    /* Animaciones */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    #next-btn:disabled, #retry-btn:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    /* Responsividad */
+    @media (max-width: 600px) {
+      .quiz-container {
+        padding: 20px;
+        width: 90%;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .answers li {
+        font-size: 1rem;
+      }
+
+      .category-btn, #next-btn, #retry-btn {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container" id="quiz-container">
+    <h1>Cultura General</h1>
+    <div id="category-selection">
+      <button class="category-btn" onclick="startQuiz('roma')">Preguntas sobre Roma</button>
+      <button class="category-btn" onclick="startQuiz('general')">Preguntas Generales</button>
+      <button class="category-btn" onclick="startQuiz('guerras')">Preguntas sobre Guerras</button>
+      <button class="category-btn" onclick="startQuiz('capitales')">Preguntas sobre Capitales</button>
+      <button class="category-btn" onclick="startQuiz('religion')">Preguntas sobre Religión</button>
+    </div>
+
+    <div id="quiz-content" style="display: none;">
+      <div class="question" id="question-text"></div>
+      <ul class="answers" id="answers-list"></ul>
+      <button id="next-btn" onclick="nextQuestion()" disabled>Siguiente</button>
+      <button id="retry-btn" onclick="retryQuestion()" style="display: none;">Reintentar</button>
+    </div>
+
+    <div class="result" id="result" style="display: none;">
+      <p>¡Has completado el quiz! Gracias por participar.</p>
+      <p>Tu puntuación final es: <strong id="score"></strong></p>
+      <button class="category-btn" onclick="restartQuiz()">Volver a jugar</button>
+    </div>
+  </div>
+
+  <script>
+    const quizzes = {
+      roma: [
+        {
+          question: "¿Quién fue el primer emperador de Roma?",
+          answers: ["César Augusto", "Julio César", "Nerón", "Trajano"],
+          correct: 0
+        },
+        {
+          question: "¿En qué año cayó el Imperio Romano de Occidente?",
+          answers: ["476 d.C.", "410 d.C.", "500 d.C.", "395 d.C."],
+          correct: 0
+        },
+        {
+          question: "¿Cuál era el idioma oficial del Imperio Romano?",
+          answers: ["Latín", "Griego", "Hebreo", "Arameo"],
+          correct: 0
+        }
+      ],
+      general: [
+        {
+          question: "¿Cuál es el continente más grande del mundo?",
+          answers: ["Asia", "África", "Europa", "América"],
+          correct: 0
+        },
+        {
+          question: "¿En qué año se firmó la Declaración de Independencia de Estados Unidos?",
+          answers: ["1776", "1492", "1812", "1607"],
+          correct: 0
+        },
+        {
+          question: "¿Quién es conocido como el 'Padre de la Patria' en México?",
+          answers: ["Miguel Hidalgo", "Emiliano Zapata", "Benito Juárez", "Porfirio Díaz"],
+          correct: 0
+        }
+      ],
+      guerras: [
+        {
+          question: "¿En qué año comenzó la Primera Guerra Mundial?",
+          answers: ["1914", "1939", "1805", "1861"],
+          correct: 0
+        },
+        {
+          question: "¿Qué conflicto se conoció como la Guerra Fría?",
+          answers: ["La rivalidad entre Estados Unidos y la URSS", "La Guerra de Vietnam", "La Guerra de Secesión", "La Guerra de los 100 Años"],
+          correct: 0
+        },
+        {
+          question: "¿Quién fue el líder del Tercer Reich durante la Segunda Guerra Mundial?",
+          answers: ["Adolf Hitler", "Winston Churchill", "Joseph Stalin", "Franklin D. Roosevelt"],
+          correct: 0
+        }
+      ],
+      capitales: [
+        {
+          question: "¿Cuál es la capital de Francia?",
+          answers: ["París", "Roma", "Madrid", "Berlín"],
+          correct: 0
+        },
+        {
+          question: "¿Cuál es la capital de Japón?",
+          answers: ["Tokio", "Beijing", "Seúl", "Bangkok"],
+          correct: 0
+        },
+        {
+          question: "¿Cuál es la capital de Canadá?",
+          answers: ["Ottawa", "Toronto", "Vancouver", "Montreal"],
+          correct: 0
+        }
+      ],
+      religion: [
+        {
+          question: "¿En qué parte de la Biblia se menciona que la tierra es redonda?",
+          answers: ["Isaías 40:22", "Génesis 1:1", "Mateo 28:19", "Salmo 104:5"],
+          correct: 0
+        },
+        {
+          question: "¿Quién movió la piedra con la que taparon la tumba de Jesús?",
+          answers: ["Un ángel", "Pedro", "María Magdalena", "Juan"],
+          correct: 0
+        },
+        {
+          question: "¿Cuál es el capítulo de la Biblia más extenso?",
+          answers: ["Salmo 119", "Isaías 53", "Mateo 5", "Génesis 1"],
+          correct: 0
+        },
+      ]
+    };
+
+    let currentQuiz = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let canRetry = false;
+
+    // Función para iniciar el quiz según la categoría seleccionada
+    function startQuiz(category) {
+      document.getElementById('category-selection').style.display = 'none';
+      document.getElementById('quiz-content').style.display = 'block';
+      currentQuiz = quizzes[category];
+      loadQuestion(currentQuestionIndex);
+    }
+
+    // Cargar una pregunta
+    function loadQuestion(index) {
+      const question = currentQuiz[index];
+      document.getElementById('question-text').textContent = `Pregunta ${index + 1}: ${question.question}`;
+      const answersList = document.getElementById('answers-list');
+      answersList.innerHTML = '';
+      question.answers.forEach((answer, i) => {
+        const li = document.createElement("li");
+        li.textContent = answer;
+        li.setAttribute("data-index", i);
+        li.onclick = () => checkAnswer(i);
+        answersList.appendChild(li);
+      });
+      document.getElementById("next-btn").disabled = true;
+      document.getElementById("retry-btn").style.display = "none";
+      canRetry = false;  // No se puede reintentar al cargar una nueva pregunta
+    }
+
+    // Verificar respuesta
+    function checkAnswer(selectedIndex) {
+      const question = currentQuiz[currentQuestionIndex];
+      const answersList = document.querySelectorAll(".answers li");
+
+      if (selectedIndex === question.correct) {
+        answersList[selectedIndex].classList.add("correct");
+        score++;
+        document.getElementById("next-btn").disabled = false;
+        canRetry = false; // Ya no se puede reintentar si la respuesta es correcta
+      } else {
+        answersList[selectedIndex].classList.add("incorrect");
+        document.getElementById("retry-btn").style.display = "inline-block";
+        document.getElementById("next-btn").disabled = true;
+        canRetry = true; // Permitir reintentar si la respuesta es incorrecta
+      }
+
+      answersList.forEach((li) => li.style.pointerEvents = "none");
+    }
+
+    // Pasar a la siguiente pregunta
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < currentQuiz.length) {
+        loadQuestion(currentQuestionIndex);
+      } else {
+        showResult();
+      }
+    }
+
+    // Reintentar la pregunta
+    function retryQuestion() {
+      if (canRetry) {
+        const answersList = document.querySelectorAll(".answers li");
+        answersList.forEach((li) => li.classList.remove("incorrect", "correct"));
+        document.getElementById("retry-btn").style.display = "none";
+        document.getElementById("next-btn").disabled = true;
+        answersList.forEach((li) => li.style.pointerEvents = "auto");
+      }
+    }
+
+    // Mostrar el resultado
+    function showResult() {
+      document.getElementById("quiz-content").style.display = "none";
+      document.getElementById("result").style.display = "block";
+      document.getElementById("score").textContent = `${score} de ${currentQuiz.length}`;
+    }
+
+    // Reiniciar el quiz
+    function restartQuiz() {
+      score = 0;
+      currentQuestionIndex = 0;
+      document.getElementById('category-selection').style.display = 'block';
+      document.getElementById('result').style.display = 'none';
+    }
+  </script>
+
+</body>
+</html>
